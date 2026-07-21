@@ -6,10 +6,10 @@ measuring whether those measurements can be trusted.
 ## Why
 
 Recent work (notably StoryScope, [Russell et al.][ss]) reports that a
-classifier reading narrative-craft features off a story — how explicitly it
+classifier reading narrative features of a story — how explicitly it
 moralizes, how it conveys emotion, how it handles time — separates human from
-AI fiction at ~93%. The features are read off each story by a single language
-model in a single pass.
+AI fiction at ~93%. The features are identified in each story by a single
+language model in a single pass.
 
 That last detail is the one this project starts with. If the feature values are
 produced by one model with no inter-rater check, they may be properties of the
@@ -73,7 +73,7 @@ stories, human and AI at matched length, is the next step.
 
 ## Status
 
-Early and honest. The instrument is being characterized before the result is
+Early. The instrument is being characterized before the result is
 reproduced. Findings here supersede nothing until the corpus is sound.
 
 ## License
