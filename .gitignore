@@ -1,0 +1,11 @@
+/target
+**/*.rs.bk
+**/mutants.out*/
+
+# Local corpora and experiment outputs — never commit prose or copyrighted text.
+# Only derived numeric annotations belong in the repo, and only deliberately.
+/chunks/
+/passages/
+/corpus-work/
+/books/
+/data/

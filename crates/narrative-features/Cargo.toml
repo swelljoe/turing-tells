@@ -1,0 +1,22 @@
+[package]
+name = "narrative-features"
+description = "Annotate prose with StoryScope's 30 core narrative features and measure how reliably a model can read them"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+name = "narrative_features"
+path = "src/lib.rs"
+
+[[bin]]
+name = "narrative-features"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+ureq = { version = "3", features = ["json"] }
