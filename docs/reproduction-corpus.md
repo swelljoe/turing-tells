@@ -43,27 +43,52 @@ both arms, label era, and ask of every feature: does it separate human from AI
 in the **modern** arm alone? Features that only work once pre-1930 prose is
 mixed in are detecting period, not authorship.
 
-## Acquisition plan
+## What we do not need to buy
 
-1. **Modern arm — buy.** Work down the multi-author anthologies in
-   `storyscope_sources.csv` (type = `multi-author`). A dozen covers ~400
-   matched stories, two dozen ~700. Top of the list: the *Year's Best SF*,
-   *Best SF & Fantasy of the Year*, *Best New Horror*, and *Year's Best Dark
-   Fantasy* volumes, plus *Africa39*, *Echoes*, *Blackguards*, *Thriller*. All
-   in print as ebooks.
-2. **Classic arm — free.** The public-domain single-author collections
-   (Twain, Bierce, O. Henry, Saki, Mansfield, Hughes, Harris) come from Project
-   Gutenberg and Standard Ebooks with clean chain of title. No purchase.
-3. **Extract and join.** Re-extract bought/downloaded stories, join on
-   `title` / `prompt_id` to StoryScope's published `storyscope_features.parquet`
-   and to their five AI-generated counterparts. This gives a matched
-   comparison: same story, our (newer, multi-rater) annotation vs their
-   single-model annotation, against a shared AI foil.
+Chasing StoryScope's exact human books is the wrong plan: many are modern,
+DRM-locked, and scattered across series (their 55 "Year's Best Science Fiction"
+stories span ~35 annual Dozois volumes, ~$500). DRM matters because text
+extraction requires parsing the file, and circumventing ebook DRM is itself
+unlawful under US DMCA s.1201 regardless of the fair-use case for analysing the
+text. We buy DRM-free or not at all.
+
+We do not need exact-match on their modern books, because the questions that
+need their specific stories can be answered on the free subset, and the
+questions that need modern fiction do not need *their* fiction.
+
+## Sequencing by cost
+
+| Experiment | Data | Cost | DRM |
+| --- | --- | --- | --- |
+| 1. Rater reliability | their AI stories + their published features | free, in hand | none |
+| 2. Pipeline exact-match validation | public-domain human stories (Gutenberg) + their AI stories, vs their features | free | none |
+| 3. Era-controlled human/AI gap | modern human corpus + our own AI foil | cheap | DRM-free only |
+
+1. **Rater reliability (free).** StoryScope released all AI story text and the
+   304 published feature values for every AI story. Run our annotator on their
+   AI stories, compare to their numbers: does a stronger/newer rater agree with
+   their single-model pass, and where do they diverge? No human text, no
+   purchase, no DRM.
+
+2. **Pipeline validation (free).** ~500 of their human stories are by clearly
+   public-domain authors (Twain 101, Bierce 81, Mansfield 73, Harris 66, Kipling
+   52, O. Henry 39, Saki 36, Irving, Hawthorne, Chekhov, Chopin, Harte — verify
+   each author's death date before relying on it; exclude anyone past ~1940).
+   Free from Gutenberg/Standard Ebooks, DRM-free, and exact-matchable to their
+   features by author+title. This validates our pipeline reproduces theirs
+   before we extend it.
+
+3. **Era-controlled gap (cheap, DRM-free).** For the modern arm, buy for
+   availability, not exact-match: DRM-free SF/F ebook bundles (Humble Bundle,
+   StoryBundle) or a few anthologies from DRM-free sellers (Baen, Tor/Macmillan,
+   Weightless Books). We generate the AI foil ourselves. Label era across both
+   arms and test which features still separate human from AI in the modern arm
+   alone.
 
 ## Legal posture
 
 Purchase grants a licence to read; computational analysis that publishes only
 derived numeric features (never the text) is the Google Books Ngram /
 HathiTrust fact pattern and is far stronger than Books3's. We publish feature
-values, never prose. See the corpus survey in the private notes for the full
-source-by-source licence review.
+values, never prose, and never strip DRM. See the corpus survey in the private
+notes for the full source-by-source licence review.
