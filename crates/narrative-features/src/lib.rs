@@ -12,6 +12,7 @@
 
 pub mod agree;
 pub mod features;
+pub mod taxonomy;
 
 use std::collections::{BTreeSet, HashSet};
 use std::fs::{File, OpenOptions};
@@ -25,7 +26,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
 use agree::Val;
-use features::{FEATURES, Feature, Kind};
+use features::{Feature, Kind};
 
 /// One rater's answers to the 30 questions about one passage.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -209,7 +210,7 @@ pub fn malformed(values: &serde_json::Map<String, Value>) -> Vec<&'static str> {
         values: values.clone(),
         seconds: 0.0,
     };
-    FEATURES.iter().filter(|f| probe.value(f).is_none()).map(|f| f.key).collect()
+    features::all().iter().filter(|f| probe.value(f).is_none()).map(|f| f.key).collect()
 }
 
 pub fn load(path: &Path) -> Result<Vec<Annotation>> {
@@ -343,7 +344,7 @@ pub fn aggregate(annotations: &[Annotation]) -> Vec<Annotation> {
         .into_iter()
         .map(|((passage, rater), runs)| {
             let mut values = serde_json::Map::new();
-            for f in FEATURES {
+            for f in features::all() {
                 let answers: Vec<Val> = runs.iter().filter_map(|a| a.value(f)).collect();
                 if answers.is_empty() {
                     continue;
@@ -403,7 +404,7 @@ pub fn report(annotations: &[Annotation]) -> Vec<agree::Report> {
     passages.sort_unstable();
     passages.dedup();
 
-    FEATURES
+    features::all()
         .iter()
         .map(|f| {
             let units: Vec<Vec<Val>> = passages

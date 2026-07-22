@@ -1,0 +1,42 @@
+22 passages (10 human, 12 ai), 40 features
+
+=== CONCORDANCE with StoryScope published values ===
+rater            exact  within1  (over matched story/feature cells)
+opus-4.8           62%      98%  (n=879)
+gpt-5.6-sol        60%      96%  (n=879)
+
+=== SEPARATION human-vs-AI (mean total-variation distance over features) ===
+higher = better human/AI separation. 'storyscope' = their own published values.
+  opus-4.8       mean TVD 0.420 over 40 features
+  gpt-5.6-sol    mean TVD 0.335 over 40 features
+  storyscope     mean TVD 0.284 over 40 features
+
+=== features where a strong rater beats storyscope's separation by >=0.15 ===
+
+opus-4.8: 17 feature(s)
+   +0.78  PLT_THM_008    Thematic Unity
+   +0.52  SET_ATM_005    Sensory Density
+   +0.48  STY_CPX_004    Parataxis vs Hypotaxis Preference
+   +0.45  SIT_MET_301    Perceived Literary Ambition in Prose Style
+   +0.40  STY_TON_023    Use of irony and humor
+   +0.40  STY_TON_024    Rhythmic markedness of prose
+   +0.37  STY_ALL_004    Primary Function of Allusion
+   +0.32  STY_TON_001    Dominant Tonal Register
+   +0.32  SIT_MET_008    Reference Explicitness
+   +0.30  STY_TON_029    Information density per sentence
+   +0.28  SIT_MET_303    Thematic Explicitness and Moralizing
+   +0.27  SIT_GEN_010    Moral / Philosophical Weighting
+
+gpt-5.6-sol: 12 feature(s)
+   +0.70  STY_FIG_002    Dominant Figurative Device Type
+   +0.38  SET_ATM_005    Sensory Density
+   +0.37  SOC_STR_001    Size of Social Network
+   +0.37  STY_TON_006    Sound Patterning Prominence
+   +0.35  AGENT_ID_001   Scope of named human agents
+   +0.32  STY_TON_023    Use of irony and humor
+   +0.23  STY_ALL_004    Primary Function of Allusion
+   +0.22  SIT_MET_008    Reference Explicitness
+   +0.18  PLT_THM_008    Thematic Unity
+   +0.18  STY_TON_021    Predominant tonal quality
+   +0.17  PLT_CON_007    Agency in Resolution
+   +0.17  AGENT_ID_002   Secondary character density

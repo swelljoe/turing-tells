@@ -56,6 +56,14 @@ enum Command {
         /// Give up if this many consecutive calls fail outright.
         #[arg(long, default_value_t = 8)]
         abort_after: usize,
+        /// StoryScope taxonomy JSON. Replaces the built-in 30 features with
+        /// theirs, so annotations carry their exact feature IDs.
+        #[arg(long)]
+        taxonomy: Option<PathBuf>,
+        /// JSON array of feature IDs to restrict the taxonomy to (the pilot
+        /// subset). Requires --taxonomy.
+        #[arg(long, requires = "taxonomy")]
+        subset: Option<PathBuf>,
     },
     /// Agreement per feature. Without --within, compares raters to each other.
     Report {
@@ -302,7 +310,25 @@ fn main() -> Result<()> {
         Command::Sample { chunks, out, join, per_book, limit } => {
             sample(&chunks, &out, join, per_book, limit)?
         }
-        Command::Annotate { passages, rater, endpoints, commands, runs, out, abort_after } => {
+        Command::Annotate {
+            passages,
+            rater,
+            endpoints,
+            commands,
+            runs,
+            out,
+            abort_after,
+            taxonomy,
+            subset,
+        } => {
+            if let Some(tax) = &taxonomy {
+                let ids = match &subset {
+                    Some(p) => Some(serde_json::from_str::<Vec<String>>(&fs::read_to_string(p)?)?),
+                    None => None,
+                };
+                let active = narrative_features::taxonomy::activate(tax, ids.as_deref())?;
+                println!("loaded {} feature(s) from {}", active.len(), tax.display());
+            }
             annotate(&passages, &rater, &endpoints, &commands, runs, &out, abort_after)?
         }
         Command::Report { input, within, raters, first_run_only, aggregate } => {
@@ -326,10 +352,7 @@ fn main() -> Result<()> {
                 }
                 None => show(&selected, "Concordance between raters"),
             }
-            println!(
-                "\n{} of StoryScope's 30 core features, questions as published",
-                features::FEATURES.len()
-            );
+            println!("\n{} feature(s) scored", features::all().len());
         }
     }
     Ok(())

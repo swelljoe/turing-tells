@@ -38,11 +38,32 @@ impl Feature {
     }
 }
 
+/// The active feature set. Defaults to the built-in 30 (`BUILTIN`) so the tool
+/// works with no external files, but the StoryScope comparison replaces it with
+/// features loaded from their released taxonomy so our answers carry their exact
+/// feature IDs and can be compared value-for-value. Set once, at startup.
+static ACTIVE: std::sync::OnceLock<&'static [Feature]> = std::sync::OnceLock::new();
+
+pub fn all() -> &'static [Feature] {
+    ACTIVE.get().copied().unwrap_or(BUILTIN)
+}
+
+/// Install a feature set for this run. Errs if already set, since silently
+/// annotating half a sweep against one taxonomy and half against another would
+/// corrupt the results without any visible failure.
+pub fn set_active(features: &'static [Feature]) -> anyhow::Result<()> {
+    ACTIVE
+        .set(features)
+        .map_err(|_| anyhow::anyhow!("feature set already initialized"))
+}
+
 /// Table 15's 30 features, in its grouping order. Six of these appear in both
 /// Table 13 and Table 14 with different elevated options (e.g. Reference
 /// Explicitness is AI-elevated at "implicit echoes" and human-elevated at
-/// "balanced mix"); they are one question each, asked once.
-pub const FEATURES: &[Feature] = &[
+/// "balanced mix"); they are one question each, asked once. This is the
+/// zero-dependency default; the StoryScope comparison overrides it via
+/// `set_active` with features loaded from their released taxonomy.
+pub const BUILTIN: &[Feature] = &[
     // AI-elevated: thematic over-determination
     Feature {
         key: "thematic_explicitness",
@@ -299,14 +320,14 @@ pub const FEATURES: &[Feature] = &[
 ];
 
 pub fn find(key: &str) -> Option<&'static Feature> {
-    FEATURES.iter().find(|f| f.key == key)
+    all().iter().find(|f| f.key == key)
 }
 
 /// JSON schema for constrained decoding. Every feature is required, so a
 /// truncated answer fails to parse instead of silently scoring as absent.
 pub fn response_schema() -> Value {
     let mut props = serde_json::Map::new();
-    for f in FEATURES {
+    for f in all() {
         let schema = match f.kind {
             Kind::Scale | Kind::Ordinal => {
                 json!({"type": "integer", "minimum": 1, "maximum": f.options.len()})
@@ -323,7 +344,7 @@ pub fn response_schema() -> Value {
     json!({
         "type": "object",
         "properties": props,
-        "required": FEATURES.iter().map(|f| f.key).collect::<Vec<_>>(),
+        "required": all().iter().map(|f| f.key).collect::<Vec<_>>(),
         "additionalProperties": false
     })
 }
@@ -338,7 +359,7 @@ Answer every question about the passage as a whole. Judge only what is on the pa
 do not speculate about what happens outside the excerpt. Answer with the JSON object \
 described below and nothing else.\n\n",
     );
-    for (i, f) in FEATURES.iter().enumerate() {
+    for (i, f) in all().iter().enumerate() {
         s.push_str(&format!("{}. {} [{}]\n   {}\n   ", i + 1, f.name, f.key, f.question));
         match f.kind {
             Kind::Scale => s.push_str("Answer: integer 1-5.\n"),
@@ -366,8 +387,8 @@ mod tests {
 
     #[test]
     fn the_table_holds_thirty_distinct_features() {
-        assert_eq!(FEATURES.len(), 30);
-        let mut keys: Vec<_> = FEATURES.iter().map(|f| f.key).collect();
+        assert_eq!(BUILTIN.len(), 30);
+        let mut keys: Vec<_> = BUILTIN.iter().map(|f| f.key).collect();
         keys.sort_unstable();
         let n = keys.len();
         keys.dedup();
@@ -376,7 +397,7 @@ mod tests {
 
     #[test]
     fn every_feature_offers_at_least_two_answers() {
-        for f in FEATURES {
+        for f in BUILTIN {
             assert!(f.options.len() >= 2, "{} has too few options", f.key);
         }
     }
@@ -394,7 +415,7 @@ mod tests {
     #[test]
     fn rubric_mentions_every_feature_key() {
         let r = rubric();
-        for f in FEATURES {
+        for f in BUILTIN {
             assert!(r.contains(f.key), "rubric omits {}", f.key);
         }
     }
